@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "CodysTools",
   "version": "1.0.0",
-  "description": "A modular Chrome extension with dynamic mod installation and management",
+  "description": "A modular Chrome extension with customizable mods",
   "permissions": [
     "storage",
     "activeTab",
@@ -10,32 +10,27 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://github.com/*",
-    "https://raw.githubusercontent.com/*"
+    "<all_urls>"
   ],
   "background": {
-    "service_worker": "background/service-worker.js"
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content/content-loader.js"],
-      "run_at": "document_end"
+      "js": ["content.js"],
+      "run_at": "document_start"
     }
   ],
   "action": {
-    "default_popup": "popup/popup.html",
+    "default_popup": "popup.html",
     "default_title": "CodysTools"
   },
+  "options_page": "options.html",
   "web_accessible_resources": [
     {
-      "resources": ["mods/*", "content/*"],
+      "resources": ["mods/*"],
       "matches": ["<all_urls>"]
     }
-  ],
-  "icons": {
-    "16": "assets/icons/icon16.png",
-    "48": "assets/icons/icon48.png",
-    "128": "assets/icons/icon128.png"
-  }
+  ]
 }

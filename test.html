@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodysTools Test Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .instructions h3 {
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+        
+        .step {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .step::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #0066cc;
+            font-weight: bold;
+        }
+        
+        .code {
+            background: #f1f3f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-list li::before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CodysTools Test Page</h1>
+        <p>Use this page to test your CodysTools extension and mods</p>
+    </div>
+
+    <div class="instructions">
+        <h3>How to Test CodysTools</h3>
+        <div class="step">Install the CodysTools extension in Chrome</div>
+        <div class="step">Click the CodysTools icon in your browser toolbar</div>
+        <div class="step">Enable the "Example Mod" in the popup</div>
+        <div class="step">Refresh this page to see the mod in action</div>
+        <div class="step">You should see a banner appear in the top-right corner</div>
+    </div>
+
+    <div class="section">
+        <h2>Extension Features</h2>
+        <ul class="feature-list">
+            <li>Modular architecture with GitHub integration</li>
+            <li>Automatic update checking and installation</li>
+            <li>Site-specific mod targeting</li>
+            <li>CSS and JavaScript injection</li>
+            <li>Configurable settings per mod</li>
+            <li>Import/export functionality</li>
+            <li>Conflict detection</li>
+            <li>Modern, responsive UI</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Testing the Example Mod</h2>
+        <p>The example mod demonstrates basic CodysTools functionality:</p>
+        <ul>
+            <li><strong>CSS Injection:</strong> Adds custom styling for the banner</li>
+            <li><strong>JavaScript Execution:</strong> Creates and manages the banner element</li>
+            <li><strong>Settings Support:</strong> Configurable text, theme, and animation speed</li>
+            <li><strong>Event Handling:</strong> Click to close functionality</li>
+            <li><strong>Auto-cleanup:</strong> Banner disappears after 5 seconds</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Installing Custom Mods</h2>
+        <p>To install mods from GitHub repositories:</p>
+        <div class="step">Click the "+" button in the CodysTools popup</div>
+        <div class="step">Enter a repository in format: <span class="code">username/repository</span></div>
+        <div class="step">Optionally specify a branch (defaults to "main")</div>
+        <div class="step">Click "Install Mod"</div>
+        <p>The mod must have a <span class="code">mod.json</span> file in the repository root.</p>
+    </div>
+
+    <div class="section">
+        <h2>Mod Development</h2>
+        <p>Create your own mods by:</p>
+        <div class="step">Creating a GitHub repository</div>
+        <div class="step">Adding a <span class="code">mod.json</span> configuration file</div>
+        <div class="step">Including CSS and/or JavaScript files</div>
+        <div class="step">Testing with CodysTools</div>
+        <p>See the README.md file for detailed mod development documentation.</p>
+    </div>
+
+    <div class="section">
+        <h2>Settings and Configuration</h2>
+        <p>Access advanced settings by:</p>
+        <div class="step">Clicking the gear icon in the popup</div>
+        <div class="step">Or right-clicking the extension icon and selecting "Options"</div>
+        <p>Configure update intervals, performance settings, and more.</p>
+    </div>
+
+    <script>
+        // Add some interactivity to test JavaScript injection
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('CodysTools Test Page: Page loaded');
+            
+            // Add click handlers to sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.addEventListener('click', function() {
+                    this.style.background = this.style.background === 'rgb(255, 248, 220)' ? '#f8f9fa' : '#fff8dc';
+                });
+            });
+            
+            // Log page info for debugging
+            console.log('Page URL:', window.location.href);
+            console.log('User Agent:', navigator.userAgent);
+            console.log('Page Title:', document.title);
+        });
+    </script>
+</body>
+</html>

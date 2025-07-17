@@ -1,146 +1,158 @@
-# CodysTools - Modular Chrome Extension
+# CodysTools
 
-A modern, modular Chrome extension that allows users to install and manage "mods" (modifications) from GitHub repositories. Features a clean, minimal interface with automatic update checking and content injection capabilities.
+A modular Chrome extension that allows you to install and manage custom mods to enhance your browsing experience.
 
 ## Features
 
-- **Modular Design**: Install mods from any public GitHub repository
-- **Auto Updates**: Daily checks for mod updates with one-click installation
-- **Category System**: Organize mods by categories (Productivity, Social, etc.)
-- **Content Injection**: Dynamic CSS and JavaScript injection
-- **Conflict Resolution**: Smart handling of mod conflicts
-- **Settings Management**: Per-mod configuration options
-- **Modern UI**: Clean, responsive interface with dark/light mode support
+- **Modular Architecture**: Install mods from GitHub repositories
+- **Automatic Updates**: Check for and install mod updates automatically
+- **Site-Specific Targeting**: Mods can target specific websites or run globally
+- **CSS & JavaScript Injection**: Full support for custom styling and functionality
+- **Settings Management**: Each mod can have its own configurable settings
+- **Conflict Detection**: Warns when mods might conflict with each other
+- **Import/Export**: Backup and restore your mod configuration
 
 ## Installation
 
-1. **Load as Unpacked Extension**:
-   - Open Chrome and navigate to `chrome://extensions/`
-   - Enable "Developer mode" in the top right
-   - Click "Load unpacked" and select the `CodysTools` folder
-
-2. **Initial Setup**:
-   - The extension will automatically install default mods
-   - Click the extension icon to open the popup interface
+1. Download or clone this repository
+2. Open Chrome and navigate to `chrome://extensions/`
+3. Enable "Developer mode" in the top right
+4. Click "Load unpacked" and select the CodysTools directory
+5. The extension will appear in your extensions list
 
 ## Usage
 
-### Installing Mods
-1. Click the extension icon
-2. Click "+ Add Mod"
-3. Enter a GitHub repository URL (e.g., `https://github.com/user/mod-repo`)
-4. Optionally specify a branch (defaults to `main`)
-5. Click "Install Mod"
-
 ### Managing Mods
-- **Enable/Disable**: Toggle the switch next to each mod
-- **Update**: Click "Update" when available (only shows when updates exist)
-- **View Details**: Click on any mod to expand and see description
-- **Filter**: Use categories or search to find specific mods
 
-### Creating Mods
+1. Click the CodysTools icon in your browser toolbar
+2. Use the "+" button to add new mods from GitHub repositories
+3. Toggle mods on/off using the switches
+4. Click on a mod to expand and view its settings
+5. Use the refresh button to check for updates
 
-Create a new GitHub repository with this structure:
+### Installing Mods
 
-```
-your-mod/
-├── mod.json          # Required: Mod configuration
-├── content.js        # Required: Main content script
-├── content.css       # Optional: CSS styles
-├── settings.html     # Optional: Settings page
-└── settings.js       # Optional: Settings logic
-```
+1. Click the "Add Mod" button in the popup
+2. Enter a GitHub repository in the format `username/repository`
+3. Optionally specify a branch (defaults to `main`)
+4. Click "Install Mod"
 
-#### mod.json Format
+### Settings
+
+Access the settings page by clicking the gear icon in the popup, or right-click the extension icon and select "Options".
+
+## Mod Structure
+
+Mods are defined by a `mod.json` file in the repository root with the following structure:
+
 ```json
 {
-  "name": "Your Mod Name",
-  "description": "Brief description of what your mod does",
+  "id": "unique-mod-id",
+  "name": "Mod Name",
+  "description": "Description of what the mod does",
   "version": "1.0.0",
-  "category": "productivity",
-  "matches": ["<all_urls>"],
-  "contentScript": "content.js",
-  "cssFile": "content.css",
-  "settings": {
-    "customOption": "value"
+  "author": "Author Name",
+  "category": "Utility",
+  "targetSites": ["*"],
+  "permissions": ["storage"],
+  "settings": [
+    {
+      "key": "settingKey",
+      "type": "boolean|text|number|select",
+      "label": "Setting Label",
+      "description": "Setting description",
+      "default": "default value"
+    }
+  ],
+  "files": {
+    "css": "style.css",
+    "js": "script.js"
   }
 }
 ```
 
-#### content.js Template
+### Mod Configuration
+
+- **id**: Unique identifier for the mod
+- **name**: Display name
+- **description**: Brief description of functionality
+- **version**: Semantic version number
+- **author**: Mod author name
+- **category**: Category for organization (Utility, Enhancement, Productivity, etc.)
+- **targetSites**: Array of site patterns where the mod should run (`*` for all sites)
+- **permissions**: Array of required permissions
+- **settings**: Array of configurable settings
+- **files**: Object mapping file types to filenames
+
+### Setting Types
+
+- **boolean**: Checkbox input
+- **text**: Text input field
+- **number**: Number input with optional min/max
+- **select**: Dropdown with predefined options
+
+### Target Sites
+
+Target sites can be specified as:
+- `*` - All sites
+- `example.com` - Specific domain
+- `*.example.com` - Wildcard patterns
+- `https://example.com/*` - URL patterns
+
+## Mod Development
+
+### JavaScript API
+
+Mods have access to a `mod` object with the following properties:
+
 ```javascript
-(function(mod) {
-    'use strict';
-    
-    // Your mod code here
-    console.log('Mod loaded:', mod.name);
-    
-    // Access settings via mod.settings
-    if (mod.settings.customOption) {
-        // Use custom settings
-    }
-})(window.modConfig || {});
+mod.id          // Mod ID
+mod.config      // Mod configuration
+mod.storage     // Storage API
+mod.utils       // Utility functions
 ```
+
+### Storage API
+
+```javascript
+// Get setting value
+const value = await mod.storage.get('settingKey');
+
+// Set setting value
+await mod.storage.set({ settingKey: 'value' });
+```
+
+### Utility Functions
+
+```javascript
+// Wait for element to appear
+const element = await mod.utils.waitForElement('.selector');
+
+// Add global CSS
+const style = mod.utils.addGlobalStyle('body { background: red; }');
+```
+
+### Example Mod
+
+See the `mods/example-mod/` directory for a complete example mod that demonstrates:
+- Configuration settings
+- CSS injection
+- JavaScript functionality
+- Theme support
+- Animations
 
 ## Default Mods
 
-### Dark Mode Toggle
-- **Category**: Productivity
-- **Description**: Adds a floating dark mode toggle to all websites
-- **Features**: 
-  - Persistent preference storage
-  - Smooth transitions
-  - Whitelist support
+The extension comes with default mods in the `mods/` directory:
 
-### Simple Ad Blocker
-- **Category**: Productivity
-- **Description**: Blocks common ad elements and trackers
-- **Features**:
-  - Dynamic ad detection
-  - Whitelist support
-  - Minimal performance impact
-
-## Development
-
-### Project Structure
-```
-CodysTools/
-├── manifest.json              # Extension manifest
-├── popup/                     # Extension popup UI
-│   ├── popup.html
-│   ├── popup.css
-│   └── popup.js
-├── background/                # Service worker
-│   ├── service-worker.js
-│   ├── mod-manager.js
-│   └── update-checker.js
-├── content/                   # Content scripts
-│   └── content-loader.js
-├── mods/                      # Default mods
-│   └── default-mods/
-└── README.md
-```
-
-### Key Components
-
-- **ModManager**: Handles mod installation, updates, and lifecycle
-- **UpdateChecker**: Manages version checking and update notifications
-- **ContentLoader**: Dynamically injects mod content into pages
-- **PopupManager**: User interface for mod management
-
-### Testing
-
-1. **Load Extension**: Load as unpacked extension in Chrome
-2. **Test Mods**: Install test mods from GitHub
-3. **Check Updates**: Verify update checking works
-4. **Content Injection**: Test on various websites
+- **example-mod**: Demonstrates basic functionality with a customizable banner
 
 ## Security
 
-- Only supports public GitHub repositories
-- Content Security Policy compliant
-- Sandboxed content script execution
-- No sensitive permissions required
+- Only public GitHub repositories are supported
+- Mods run in isolated contexts to prevent conflicts
+- Settings are validated and sanitized
+- XSS protection is built-in
 
 ## Contributing
 
@@ -152,4 +164,17 @@ CodysTools/
 
 ## License
 
-MIT License - feel free to use and modify as needed.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support, bug reports, or feature requests, please visit our [GitHub repository](https://github.com/codyklr/CodysTools).
+
+## Changelog
+
+### v1.0.0
+- Initial release
+- Basic mod management
+- GitHub integration
+- Settings system
+- Example mod included

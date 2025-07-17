@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodysTools Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>CodysTools Settings</h1>
+      <p>Configure your extension preferences and manage mods</p>
+    </header>
+
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="general">General</button>
+      <button class="nav-tab" data-tab="mods">Mods</button>
+      <button class="nav-tab" data-tab="updates">Updates</button>
+      <button class="nav-tab" data-tab="advanced">Advanced</button>
+    </nav>
+
+    <main class="content">
+      <!-- General Settings -->
+      <div id="general" class="tab-content active">
+        <section class="settings-section">
+          <h2>General Settings</h2>
+          
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="enableExtension" checked>
+              <span class="checkmark"></span>
+              Enable CodysTools
+            </label>
+            <p class="setting-description">Master switch to enable or disable the entire extension</p>
+          </div>
+
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="enableNotifications" checked>
+              <span class="checkmark"></span>
+              Show notifications
+            </label>
+            <p class="setting-description">Display notifications for mod updates and other events</p>
+          </div>
+
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="enableDebugMode">
+              <span class="checkmark"></span>
+              Debug mode
+            </label>
+            <p class="setting-description">Enable detailed logging for troubleshooting</p>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2>Performance</h2>
+          
+          <div class="setting-item">
+            <label for="maxConcurrentMods" class="setting-label-text">Maximum concurrent mods per page</label>
+            <input type="number" id="maxConcurrentMods" min="1" max="50" value="10" class="setting-input">
+            <p class="setting-description">Limit the number of mods that can run simultaneously on a single page</p>
+          </div>
+
+          <div class="setting-item">
+            <label for="modLoadTimeout" class="setting-label-text">Mod load timeout (seconds)</label>
+            <input type="number" id="modLoadTimeout" min="1" max="60" value="10" class="setting-input">
+            <p class="setting-description">Maximum time to wait for a mod to load before timing out</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- Mods Settings -->
+      <div id="mods" class="tab-content">
+        <section class="settings-section">
+          <h2>Mod Management</h2>
+          
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="autoEnableNewMods">
+              <span class="checkmark"></span>
+              Auto-enable new mods
+            </label>
+            <p class="setting-description">Automatically enable mods when they are installed</p>
+          </div>
+
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="enableModConflictDetection" checked>
+              <span class="checkmark"></span>
+              Detect mod conflicts
+            </label>
+            <p class="setting-description">Warn when mods might conflict with each other</p>
+          </div>
+
+          <div class="setting-item">
+            <label for="defaultModCategory" class="setting-label-text">Default category for new mods</label>
+            <select id="defaultModCategory" class="setting-select">
+              <option value="Uncategorized">Uncategorized</option>
+              <option value="Utility">Utility</option>
+              <option value="Enhancement">Enhancement</option>
+              <option value="Productivity">Productivity</option>
+              <option value="Entertainment">Entertainment</option>
+            </select>
+            <p class="setting-description">Default category assigned to mods without a specified category</p>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2>Mod Storage</h2>
+          
+          <div class="setting-item">
+            <div class="storage-info">
+              <div class="storage-stat">
+                <span class="storage-label">Total mods:</span>
+                <span id="totalModsCount">0</span>
+              </div>
+              <div class="storage-stat">
+                <span class="storage-label">Enabled mods:</span>
+                <span id="enabledModsCount">0</span>
+              </div>
+              <div class="storage-stat">
+                <span class="storage-label">Storage used:</span>
+                <span id="storageUsed">0 KB</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <button id="exportMods" class="btn btn-secondary">Export Mods</button>
+            <button id="importMods" class="btn btn-secondary">Import Mods</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+            <p class="setting-description">Backup and restore your mod configuration</p>
+          </div>
+
+          <div class="setting-item">
+            <button id="clearModData" class="btn btn-danger">Clear All Mod Data</button>
+            <p class="setting-description">Remove all mods and their settings (cannot be undone)</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- Updates Settings -->
+      <div id="updates" class="tab-content">
+        <section class="settings-section">
+          <h2>Update Settings</h2>
+          
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="autoCheckUpdates" checked>
+              <span class="checkmark"></span>
+              Automatically check for updates
+            </label>
+            <p class="setting-description">Check for mod updates in the background</p>
+          </div>
+
+          <div class="setting-item">
+            <label for="updateCheckInterval" class="setting-label-text">Update check interval</label>
+            <select id="updateCheckInterval" class="setting-select">
+              <option value="1">Every hour</option>
+              <option value="6">Every 6 hours</option>
+              <option value="24" selected>Daily</option>
+              <option value="168">Weekly</option>
+            </select>
+            <p class="setting-description">How often to check for mod updates</p>
+          </div>
+
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="autoUpdateMods">
+              <span class="checkmark"></span>
+              Auto-update mods
+            </label>
+            <p class="setting-description">Automatically install mod updates when available</p>
+          </div>
+
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="updateNotifications" checked>
+              <span class="checkmark"></span>
+              Show update notifications
+            </label>
+            <p class="setting-description">Display notifications when updates are available</p>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2>Update Actions</h2>
+          
+          <div class="setting-item">
+            <button id="checkUpdatesNow" class="btn btn-primary">Check for Updates Now</button>
+            <p class="setting-description">Manually check for updates to all installed mods</p>
+          </div>
+
+          <div class="setting-item">
+            <button id="updateAllMods" class="btn btn-success">Update All Mods</button>
+            <p class="setting-description">Update all mods that have available updates</p>
+          </div>
+
+          <div class="setting-item">
+            <div class="update-status">
+              <span id="lastUpdateCheck">Last checked: Never</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Advanced Settings -->
+      <div id="advanced" class="tab-content">
+        <section class="settings-section">
+          <h2>Advanced Settings</h2>
+          
+          <div class="setting-item">
+            <label for="githubApiToken" class="setting-label-text">GitHub API Token (optional)</label>
+            <input type="password" id="githubApiToken" class="setting-input" placeholder="ghp_...">
+            <p class="setting-description">Personal access token for higher GitHub API rate limits</p>
+          </div>
+
+          <div class="setting-item">
+            <label for="customModSources" class="setting-label-text">Custom mod sources</label>
+            <textarea id="customModSources" class="setting-textarea" rows="4" placeholder="https://api.example.com/mods&#10;https://another-source.com/api"></textarea>
+            <p class="setting-description">Additional sources for mod discovery (one URL per line)</p>
+          </div>
+
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="allowUnsafeMods">
+              <span class="checkmark"></span>
+              Allow potentially unsafe mods
+            </label>
+            <p class="setting-description">⚠️ Enable installation of mods that haven't been verified as safe</p>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2>Developer Tools</h2>
+          
+          <div class="setting-item">
+            <button id="openDevTools" class="btn btn-secondary">Open Developer Tools</button>
+            <p class="setting-description">Open browser developer tools for debugging</p>
+          </div>
+
+          <div class="setting-item">
+            <button id="exportLogs" class="btn btn-secondary">Export Debug Logs</button>
+            <p class="setting-description">Download extension logs for troubleshooting</p>
+          </div>
+
+          <div class="setting-item">
+            <button id="resetSettings" class="btn btn-danger">Reset All Settings</button>
+            <p class="setting-description">Reset all settings to their default values</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-info">
+        <span>CodysTools v1.0.0</span>
+        <a href="https://github.com/codyklr/CodysTools" target="_blank">GitHub</a>
+        <a href="#" id="showAbout">About</a>
+      </div>
+      <div class="footer-actions">
+        <button id="saveSettings" class="btn btn-primary">Save Settings</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- About Modal -->
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>About CodysTools</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="about-content">
+          <h3>CodysTools v1.0.0</h3>
+          <p>A modular Chrome extension that allows you to install and manage custom mods to enhance your browsing experience.</p>
+          
+          <h4>Features</h4>
+          <ul>
+            <li>Install mods from GitHub repositories</li>
+            <li>Automatic update checking and installation</li>
+            <li>Site-specific mod targeting</li>
+            <li>CSS and JavaScript injection</li>
+            <li>Mod conflict detection</li>
+            <li>Customizable settings per mod</li>
+          </ul>
+
+          <h4>Support</h4>
+          <p>For support, bug reports, or feature requests, please visit our <a href="https://github.com/codyklr/CodysTools" target="_blank">GitHub repository</a>.</p>
+          
+          <h4>License</h4>
+          <p>This extension is open source and available under the MIT License.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
