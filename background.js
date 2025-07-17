@@ -257,6 +257,25 @@ class ModManager {
     await chrome.storage.local.set({ mods });
     return mods[modIndex];
   }
+
+  async deleteMod(modId) {
+    const { mods } = await chrome.storage.local.get('mods');
+    
+    // Don't allow deletion of default mods
+    const mod = mods.find(m => m.id === modId);
+    if (!mod) throw new Error('Mod not found');
+    if (mod.isDefault) throw new Error('Cannot delete default mods');
+    
+    // Remove the mod from the list
+    const updatedMods = mods.filter(m => m.id !== modId);
+    
+    await chrome.storage.local.set({ mods: updatedMods });
+    
+    // Also remove any stored settings for this mod
+    await chrome.storage.local.remove(`mod_${modId}_settings`);
+    
+    return { success: true };
+  }
 }
 
 // Initialize mod manager
@@ -279,6 +298,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     case 'checkUpdates':
       modManager.checkForUpdates()
+        .then(() => sendResponse({ success: true }))
+        .catch(error => sendResponse({ error: error.message }));
+      return true;
+
+    case 'deleteMod':
+      modManager.deleteMod(request.modId)
         .then(() => sendResponse({ success: true }))
         .catch(error => sendResponse({ error: error.message }));
       return true;

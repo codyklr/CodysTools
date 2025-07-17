@@ -57,11 +57,21 @@ class CodysToolsPopup {
   }
 
   updateCategories() {
-    this.categories.clear();
+    // Create a map to track normalized categories and their display names
+    const categoryMap = new Map();
+    
     this.mods.forEach(mod => {
       const category = mod.category || 'Uncategorized';
-      this.categories.add(category);
+      const normalizedCategory = category.toLowerCase();
+      
+      // If we haven't seen this normalized category before, store it with its original casing
+      if (!categoryMap.has(normalizedCategory)) {
+        categoryMap.set(normalizedCategory, category);
+      }
     });
+
+    // Convert to array of unique display names
+    this.categories = new Set(categoryMap.values());
 
     const categoryFilter = document.getElementById('categoryFilter');
     const currentValue = categoryFilter.value;
@@ -69,13 +79,15 @@ class CodysToolsPopup {
     // Clear existing options except "All Categories"
     categoryFilter.innerHTML = '<option value="">All Categories</option>';
     
-    // Add category options
-    Array.from(this.categories).sort().forEach(category => {
-      const option = document.createElement('option');
-      option.value = category;
-      option.textContent = category;
-      categoryFilter.appendChild(option);
-    });
+    // Add category options sorted case-insensitively
+    Array.from(this.categories)
+      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+      .forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categoryFilter.appendChild(option);
+      });
 
     // Restore previous selection
     categoryFilter.value = currentValue;
@@ -93,9 +105,10 @@ class CodysToolsPopup {
         mod.description.toLowerCase().includes(searchTerm) ||
         mod.author.toLowerCase().includes(searchTerm);
 
-      // Category filter
+      // Category filter (case-insensitive)
       const modCategory = mod.category || 'Uncategorized';
-      const matchesCategory = !categoryFilter || modCategory === categoryFilter;
+      const matchesCategory = !categoryFilter || 
+        modCategory.toLowerCase() === categoryFilter.toLowerCase();
 
       // Status filter
       let matchesStatus = true;
@@ -119,6 +132,7 @@ class CodysToolsPopup {
     
     if (this.filteredMods.length === 0) {
       modsList.innerHTML = this.getEmptyState();
+      this.attachModEventListeners();
       return;
     }
 
@@ -198,6 +212,35 @@ class CodysToolsPopup {
       });
     }
 
+    // Add delete button or protected notice
+    if (!mod.isDefault) {
+      content += `
+        <div class="mod-setting" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef;">
+          <button class="btn btn-danger delete-mod-btn" data-mod-id="${mod.id}" style="width: 100%;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+            Delete Mod
+          </button>
+        </div>
+      `;
+    } else {
+      content += `
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e9ecef;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #6c757d; font-size: 11px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0110 0v4"></path>
+            </svg>
+            <span>Protected mod - cannot be deleted</span>
+          </div>
+        </div>
+      `;
+    }
+
     return content;
   }
 
@@ -254,6 +297,12 @@ class CodysToolsPopup {
   }
 
   attachModEventListeners() {
+    // Empty state add button
+    const emptyStateBtn = document.getElementById('emptyStateAddBtn');
+    if (emptyStateBtn) {
+      emptyStateBtn.addEventListener('click', () => this.showAddModModal());
+    }
+
     // Toggle switches
     document.querySelectorAll('.toggle-switch').forEach(toggle => {
       toggle.addEventListener('click', (e) => {
@@ -298,6 +347,19 @@ class CodysToolsPopup {
         this.saveModSetting(modId, settingKey, value);
       });
     });
+
+    // Delete buttons
+    document.querySelectorAll('.delete-mod-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const modId = btn.dataset.modId;
+        const mod = this.mods.find(m => m.id === modId);
+        
+        if (mod && confirm(`Are you sure you want to delete "${mod.name}"? This action cannot be undone.`)) {
+          await this.deleteMod(modId);
+        }
+      });
+    });
   }
 
   getEmptyState() {
@@ -309,7 +371,7 @@ class CodysToolsPopup {
         </svg>
         <h3>No mods found</h3>
         <p>Try adjusting your search or filters, or add a new mod to get started.</p>
-        <button class="btn btn-primary" onclick="document.getElementById('addModBtn').click()">
+        <button class="btn btn-primary" id="emptyStateAddBtn">
           Add Your First Mod
         </button>
       </div>
@@ -450,6 +512,40 @@ class CodysToolsPopup {
     const settings = result[storageKey] || {};
     settings[key] = value;
     await chrome.storage.local.set({ [storageKey]: settings });
+  }
+
+  async deleteMod(modId) {
+    try {
+      // Send message to background script to delete mod
+      const response = await chrome.runtime.sendMessage({
+        action: 'deleteMod',
+        modId: modId
+      });
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      // Remove mod from local array
+      this.mods = this.mods.filter(mod => mod.id !== modId);
+      this.filteredMods = this.filteredMods.filter(mod => mod.id !== modId);
+      
+      // Save updated mods list
+      await this.saveMods();
+      
+      // Remove mod settings
+      await chrome.storage.local.remove(`mod_${modId}_settings`);
+      
+      // Update UI
+      this.updateCategories();
+      this.renderMods();
+      this.updateStats();
+      
+      this.showSuccess('Mod deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete mod:', error);
+      this.showError('Failed to delete mod: ' + error.message);
+    }
   }
 
   updateStats() {
