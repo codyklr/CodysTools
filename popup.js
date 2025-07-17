@@ -429,10 +429,16 @@ class CodysToolsPopup {
     btn.disabled = true;
 
     try {
+      // First, trigger a merge of default mods to pick up any new ones
+      await chrome.runtime.sendMessage({ action: 'mergeDefaultMods' });
+      
+      // Then check for updates
       await chrome.runtime.sendMessage({ action: 'checkUpdates' });
+      
       await this.loadMods();
       this.renderMods();
-      this.showSuccess('Update check completed');
+      this.updateStats();
+      this.showSuccess('Mods refreshed and updates checked');
     } catch (error) {
       console.error('Failed to check for updates:', error);
       this.showError('Failed to check for updates');

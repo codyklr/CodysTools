@@ -5,150 +5,47 @@ class ModManager {
   }
 
   async initializeExtension() {
-    // Initialize default mods on first install
-    const { initialized } = await chrome.storage.local.get('initialized');
-    if (!initialized) {
-      await this.loadDefaultMods();
-      await chrome.storage.local.set({ initialized: true });
-    }
+    // Always check and merge default mods
+    await this.mergeDefaultMods();
 
     // Check for mod updates periodically
     this.scheduleUpdateChecks();
   }
 
+  async mergeDefaultMods() {
+    const defaultMods = this.getDefaultMods();
+    const { mods = [] } = await chrome.storage.local.get('mods');
+    
+    let modsUpdated = false;
+    
+    // Add any new default mods that don't exist
+    for (const defaultMod of defaultMods) {
+      const existingMod = mods.find(m => m.id === defaultMod.id);
+      if (!existingMod) {
+        mods.push(defaultMod);
+        modsUpdated = true;
+      } else if (existingMod.isDefault) {
+        // Update existing default mods with new code/version but preserve enabled state
+        const index = mods.findIndex(m => m.id === defaultMod.id);
+        mods[index] = {
+          ...defaultMod,
+          enabled: existingMod.enabled
+        };
+        modsUpdated = true;
+      }
+    }
+    
+    if (modsUpdated) {
+      await chrome.storage.local.set({ mods });
+    }
+  }
+
+  getDefaultMods() {
+    return [];
+  }
+
   async loadDefaultMods() {
-    const defaultMods = [
-      {
-        id: 'example-mod',
-        name: 'Example Mod',
-        description: 'A sample mod to demonstrate functionality',
-        version: '1.0.0',
-        category: 'Utility',
-        enabled: false,
-        isDefault: true,
-        targetSites: ['*'],
-        author: 'CodysTools',
-        repository: 'codyklr/CodysTools',
-        branch: 'main',
-        lastUpdated: Date.now(),
-        css: `/* Example Mod CSS */
-.codystools-example-banner {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 10000;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  max-width: 300px;
-}
-
-.codystools-example-banner:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-}
-
-.codystools-example-banner .close-btn {
-  float: right;
-  margin-left: 10px;
-  background: none;
-  border: none;
-  color: inherit;
-  font-size: 16px;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-}
-
-.codystools-example-banner .close-btn:hover {
-  opacity: 1;
-}
-
-.codystools-example-content {
-  margin-right: 20px;
-}
-
-.codystools-example-title {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.codystools-example-text {
-  opacity: 0.9;
-  font-size: 12px;
-}
-
-@keyframes codystools-fadeIn {
-  from { opacity: 0; transform: translateX(100%); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes codystools-fadeOut {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(100%); }
-}
-
-.codystools-fade-in { animation: codystools-fadeIn 300ms ease; }
-.codystools-fade-out { animation: codystools-fadeOut 300ms ease; }`,
-        js: `// Example Mod JavaScript
-(async function() {
-  'use strict';
-  
-  console.log('CodysTools Example Mod: Initializing...');
-  
-  function createBanner() {
-    const banner = document.createElement('div');
-    banner.className = 'codystools-example-banner codystools-fade-in';
-    banner.id = 'codystools-example-banner';
-    
-    banner.innerHTML = \`
-      <div class="codystools-example-content">
-        <div class="codystools-example-title">CodysTools Example Mod</div>
-        <div class="codystools-example-text">Hello from CodysTools!</div>
-      </div>
-      <button class="close-btn" title="Close">&times;</button>
-    \`;
-    
-    return banner;
-  }
-  
-  function showBanner() {
-    const existing = document.getElementById('codystools-example-banner');
-    if (existing) existing.remove();
-    
-    const banner = createBanner();
-    document.body.appendChild(banner);
-    
-    banner.querySelector('.close-btn').addEventListener('click', () => {
-      banner.classList.add('codystools-fade-out');
-      setTimeout(() => banner.remove(), 300);
-    });
-    
-    setTimeout(() => {
-      if (document.getElementById('codystools-example-banner')) {
-        banner.classList.add('codystools-fade-out');
-        setTimeout(() => banner.remove(), 300);
-      }
-    }, 5000);
-  }
-  
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', showBanner);
-  } else {
-    setTimeout(showBanner, 1000);
-  }
-  
-})();`
-      }
-    ];
-
+    const defaultMods = this.getDefaultMods();
     await chrome.storage.local.set({ mods: defaultMods });
   }
 
@@ -307,6 +204,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         .then(() => sendResponse({ success: true }))
         .catch(error => sendResponse({ error: error.message }));
       return true;
+
+    case 'resetDefaultMods':
+      modManager.loadDefaultMods()
+        .then(() => sendResponse({ success: true }))
+        .catch(error => sendResponse({ error: error.message }));
+      return true;
+
+    case 'mergeDefaultMods':
+      modManager.mergeDefaultMods()
+        .then(() => sendResponse({ success: true }))
+        .catch(error => sendResponse({ error: error.message }));
+      return true;
   }
 });
 
@@ -318,6 +227,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 async function injectActiveMods(tabId, url) {
+  // Skip injection for chrome:// and chrome-extension:// URLs
+  if (url.startsWith('chrome://') || url.startsWith('chrome-extension://')) {
+    return;
+  }
+
   const { mods = [] } = await chrome.storage.local.get('mods');
   const activeMods = mods.filter(mod => mod.enabled && shouldInjectMod(mod, url));
 
