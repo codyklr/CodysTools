@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodysTools</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        <header>
+            <h1>CodysTools</h1>
+            <button id="add-mod-btn" class="add-btn">+ Add Mod</button>
+        </header>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search mods...">
+        </div>
+
+        <div class="categories">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="productivity">Productivity</button>
+            <button class="category-btn" data-category="social">Social</button>
+            <button class="category-btn" data-category="uncategorized">Uncategorized</button>
+        </div>
+
+        <div id="mods-list" class="mods-list">
+            <!-- Mods will be populated here -->
+        </div>
+
+        <div id="add-mod-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Add New Mod</h2>
+                <form id="add-mod-form">
+                    <label>
+                        GitHub Repository URL:
+                        <input type="url" id="repo-url" placeholder="https://github.com/user/repo" required>
+                    </label>
+                    <label>
+                        Branch (optional):
+                        <input type="text" id="branch-name" placeholder="main">
+                    </label>
+                    <button type="submit">Install Mod</button>
+                </form>
+                <div id="install-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

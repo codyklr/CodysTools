@@ -1,0 +1,19 @@
+{
+  "name": "Simple Ad Blocker",
+  "description": "Blocks common ad elements and trackers on websites",
+  "version": "1.0.0",
+  "category": "productivity",
+  "matches": ["<all_urls>"],
+  "contentScript": "content.js",
+  "settings": {
+    "blockSelectors": [
+      "[id*='ad']",
+      "[class*='ad']",
+      "[data-ad]",
+      ".advertisement",
+      ".adsbygoogle",
+      ".banner-ad"
+    ],
+    "whitelist": ["google.com", "github.com"]
+  }
+}
